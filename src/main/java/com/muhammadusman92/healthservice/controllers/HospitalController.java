@@ -5,6 +5,7 @@ import com.muhammadusman92.healthservice.payload.HospitalDto;
 import com.muhammadusman92.healthservice.payload.PageResponse;
 import com.muhammadusman92.healthservice.payload.Response;
 import com.muhammadusman92.healthservice.services.HospitalService;
+import com.muhammadusman92.healthservice.services.HospitalUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,8 @@ import static org.springframework.http.HttpStatus.*;
 public class HospitalController {
     @Autowired
     private HospitalService hospitalService;
+    @Autowired
+    private HospitalUserService hospitalUserService;
     @PostMapping("/")
     public ResponseEntity<Response> createHospital(
 //            @RequestHeader("authorities") String authorities,
@@ -38,6 +41,12 @@ public class HospitalController {
 //                    .statusCode(FORBIDDEN.value())
 //                    .build(), FORBIDDEN);
 //        }
+    }
+    @PostMapping("/hospitalId/{hospitalId}/user-email/{userEmail}")
+    public ResponseEntity<String> addHospitalUser(
+            @PathVariable String hospitalId,
+            @PathVariable String userEmail){
+        return new ResponseEntity<>(hospitalUserService.addHospitalUser(hospitalId,userEmail),OK);
     }
     @PutMapping("/{hospitalId}")
     public ResponseEntity<Response> updateHospital(@RequestHeader("authorities") String authorities,
