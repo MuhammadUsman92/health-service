@@ -10,7 +10,6 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class DiseaseDto {
     private Integer id;
     private String name;

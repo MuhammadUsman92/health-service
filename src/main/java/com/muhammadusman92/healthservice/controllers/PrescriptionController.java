@@ -19,7 +19,6 @@ public class PrescriptionController {
     @Autowired
     private PrescriptionService prescriptionService;
     @PostMapping("/diseaseId/{diseaseId}/doctorId/{doctorId}")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Response> createPrescription(
 //            @RequestHeader("authorities") String authorities,
                                                        @RequestHeader("userEmail") String email,

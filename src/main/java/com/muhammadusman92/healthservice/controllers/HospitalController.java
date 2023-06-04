@@ -18,7 +18,6 @@ public class HospitalController {
     @Autowired
     private HospitalService hospitalService;
     @PostMapping("/")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Response> createHospital(
 //            @RequestHeader("authorities") String authorities,
                                                    @RequestBody HospitalDto hospitalDto){

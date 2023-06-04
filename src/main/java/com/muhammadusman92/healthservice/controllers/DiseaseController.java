@@ -22,7 +22,6 @@ public class DiseaseController {
     @Autowired
     private DiseaseService diseaseService;
     @PostMapping("/patientId/{patientId}")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Response> createDiseaseOfPatientById(
 //            @RequestHeader("authorities") String authorities,
 //                                                               @RequestHeader("userEmail") String email,
@@ -95,7 +94,6 @@ public class DiseaseController {
 
     }
     @GetMapping("/patientId/{patientId}")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Response> getAllDiseaseOfPatient(
 //            @RequestHeader("authorities") String authorities,
 //                                                           @RequestHeader("userEmail") String email,

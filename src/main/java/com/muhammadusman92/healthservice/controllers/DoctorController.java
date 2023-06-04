@@ -17,7 +17,6 @@ public class DoctorController {
     @Autowired
     private DoctorService doctorService;
     @PostMapping("/")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Response> createDoctor(
 //            @RequestHeader("authorities") String authorities,
                                                  @RequestBody DoctorDto doctorDto){

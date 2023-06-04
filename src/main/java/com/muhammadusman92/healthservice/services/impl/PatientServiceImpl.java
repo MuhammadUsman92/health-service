@@ -64,6 +64,10 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepo.findById(patientId).orElseThrow(
                 ()->new ResourceNotFoundException("Patient","PatientId",patientId));
         PatientDto patientDto = conversionDtos.patientToPatientDto(patient);
+        patientDto.setLocation(conversionDtos.locationToLocationDto(patient.getLocation()));
+        patientDto.setDoctorSet(patient.getDoctorSet().stream().map(doctor -> conversionDtos.doctorToDoctorDto(doctor)).collect(Collectors.toSet()));
+        patientDto.setHospitalSet(patient.getHospitalSet().stream().map(hospital->conversionDtos.hospitalToHospitalDto(hospital)).collect(Collectors.toSet()));
+        patientDto.setDiseaseSet(patient.getDiseaseSet().stream().map(disease -> conversionDtos.diseaseToDiseaseDto(disease)).collect(Collectors.toSet()));
         return this.patientData(patient,patientDto);
     }
 

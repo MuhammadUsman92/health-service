@@ -5,17 +5,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import java.util.HashSet;
 import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class PatientDto {
     private String CNIC;
-    private String Name;
+    private String name;
     private String email;
-    private int Age;
+    private String bloodGroup;
+    private int age;
     private float height;
     private float weight;
     private String gender;

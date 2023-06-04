@@ -22,7 +22,7 @@ public class Patient {
     @Column(name = "CNIC",unique = true,nullable = false,length = 50)
     private String CNIC;
     @Column(length = 100)
-    private String Name;
+    private String name;
     private String email;
     @Column(length = 10)
     private String bloodGroup;

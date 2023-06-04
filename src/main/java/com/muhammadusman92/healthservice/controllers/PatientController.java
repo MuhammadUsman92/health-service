@@ -21,7 +21,6 @@ public class PatientController {
     @Autowired
     private PatientService patientService;
     @PostMapping("/")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Response> createPatientById(
                                                       @RequestBody PatientDto patientDto){
 //        if (authorities.contains("RESCUE_USER")) {

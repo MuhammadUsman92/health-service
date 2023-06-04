@@ -18,7 +18,6 @@ public class LaboratoryController {
     @Autowired
     private LaboratoryService laboratoryService;
     @PostMapping("/")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Response> createLaboratory(
 //            @RequestHeader("authorities") String authorities,
                                                      @RequestBody LaboratoryDto laboratoryDto){

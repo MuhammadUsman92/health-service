@@ -10,7 +10,6 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ReportDto {
     private Integer id;
     private Date collect_date;
