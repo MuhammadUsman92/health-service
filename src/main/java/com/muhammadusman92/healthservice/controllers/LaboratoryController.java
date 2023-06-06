@@ -19,9 +19,9 @@ public class LaboratoryController {
     private LaboratoryService laboratoryService;
     @PostMapping("/")
     public ResponseEntity<Response> createLaboratory(
-//            @RequestHeader("authorities") String authorities,
-                                                     @RequestBody LaboratoryDto laboratoryDto){
-//        if (authorities.contains("RESCUE_ADMIN")) {
+            @RequestHeader("authorities") String authorities,
+            @RequestBody LaboratoryDto laboratoryDto){
+        if (authorities.contains("RESCUE_ADMIN")) {
             LaboratoryDto savedLaboratory = laboratoryService.createLaboratory(laboratoryDto);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -30,18 +30,19 @@ public class LaboratoryController {
                     .statusCode(CREATED.value())
                     .data(savedLaboratory)
                     .build(), CREATED);
-//        } else {
-//            return new ResponseEntity<>(Response.builder()
-//                    .timeStamp(now())
-//                    .message("You are not authorized for this service")
-//                    .status(FORBIDDEN)
-//                    .statusCode(FORBIDDEN.value())
-//                    .build(), FORBIDDEN);
-//        }
+        } else {
+            return new ResponseEntity<>(Response.builder()
+                    .timeStamp(now())
+                    .message("You are not authorized for this service")
+                    .status(FORBIDDEN)
+                    .statusCode(FORBIDDEN.value())
+                    .build(), FORBIDDEN);
+        }
     }
     @PutMapping("/{laboratoryId}")
-    public ResponseEntity<Response> updateLaboratory(@RequestHeader("authorities") String authorities,
-                                                     @RequestBody LaboratoryDto laboratoryDto,@PathVariable String laboratoryId){
+    public ResponseEntity<Response> updateLaboratory(
+            @RequestHeader("authorities") String authorities,
+            @RequestBody LaboratoryDto laboratoryDto,@PathVariable String laboratoryId){
         if (authorities.contains("RESCUE_ADMIN")) {
             LaboratoryDto updateLaboratory = laboratoryService.updateLaboratory(laboratoryDto,laboratoryId);
             return new ResponseEntity<>(Response.builder()
@@ -59,11 +60,11 @@ public class LaboratoryController {
                     .statusCode(FORBIDDEN.value())
                     .build(), FORBIDDEN);
         }
-
     }
     @DeleteMapping("/{laboratoryId}")
-    public ResponseEntity<Response> deleteLaboratory(@RequestHeader("authorities") String authorities,
-                                                     @PathVariable String laboratoryId){
+    public ResponseEntity<Response> deleteLaboratory(
+            @RequestHeader("authorities") String authorities,
+            @PathVariable String laboratoryId){
         if (authorities.contains("RESCUE_ADMIN")) {
             laboratoryService.deleteLaboratory(laboratoryId);
             return new ResponseEntity<>(Response.builder()
@@ -106,8 +107,9 @@ public class LaboratoryController {
         }
     }
     @GetMapping("/{laboratoryId}")
-    public ResponseEntity<Response> getLaboratoryById(@RequestHeader("authorities") String authorities,
-                                                      @PathVariable String laboratoryId){
+    public ResponseEntity<Response> getLaboratoryById(
+            @RequestHeader("authorities") String authorities,
+            @PathVariable String laboratoryId){
         if (authorities.contains("RESCUE_USER")) {
             LaboratoryDto laboratoryDto=laboratoryService.getById(laboratoryId);
             return new ResponseEntity<>(Response.builder()
@@ -125,6 +127,5 @@ public class LaboratoryController {
                     .statusCode(FORBIDDEN.value())
                     .build(), FORBIDDEN);
         }
-
     }
 }

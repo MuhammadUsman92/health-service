@@ -22,9 +22,9 @@ public class HospitalController {
     private HospitalUserService hospitalUserService;
     @PostMapping("/")
     public ResponseEntity<Response> createHospital(
-//            @RequestHeader("authorities") String authorities,
-                                                   @RequestBody HospitalDto hospitalDto){
-//        if (authorities.contains("RESCUE_ADMIN")) {
+            @RequestHeader("authorities") String authorities,
+            @RequestBody HospitalDto hospitalDto){
+        if (authorities.contains("RESCUE_ADMIN")) {
             HospitalDto savedHospital = hospitalService.createHospital(hospitalDto);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -33,14 +33,14 @@ public class HospitalController {
                     .statusCode(CREATED.value())
                     .data(savedHospital)
                     .build(), CREATED);
-//        } else {
-//            return new ResponseEntity<>(Response.builder()
-//                    .timeStamp(now())
-//                    .message("You are not authorized for this service")
-//                    .status(FORBIDDEN)
-//                    .statusCode(FORBIDDEN.value())
-//                    .build(), FORBIDDEN);
-//        }
+        } else {
+            return new ResponseEntity<>(Response.builder()
+                    .timeStamp(now())
+                    .message("You are not authorized for this service")
+                    .status(FORBIDDEN)
+                    .statusCode(FORBIDDEN.value())
+                    .build(), FORBIDDEN);
+        }
     }
     @PostMapping("/hospitalId/{hospitalId}/user-email/{userEmail}")
     public ResponseEntity<String> addHospitalUser(
@@ -49,8 +49,9 @@ public class HospitalController {
         return new ResponseEntity<>(hospitalUserService.addHospitalUser(hospitalId,userEmail),OK);
     }
     @PutMapping("/{hospitalId}")
-    public ResponseEntity<Response> updateHospital(@RequestHeader("authorities") String authorities,
-                                                   @RequestBody HospitalDto hospitalDto,@PathVariable String hospitalId){
+    public ResponseEntity<Response> updateHospital(
+            @RequestHeader("authorities") String authorities,
+            @RequestBody HospitalDto hospitalDto,@PathVariable String hospitalId){
         if (authorities.contains("RESCUE_ADMIN")) {
             HospitalDto updateHospital = hospitalService.updateHospital(hospitalDto,hospitalId);
             return new ResponseEntity<>(Response.builder()
@@ -70,8 +71,9 @@ public class HospitalController {
         }
     }
     @DeleteMapping("/{hospitalId}")
-    public ResponseEntity<Response> deleteHospital(@RequestHeader("authorities") String authorities,
-                                                   @PathVariable String hospitalId){
+    public ResponseEntity<Response> deleteHospital(
+            @RequestHeader("authorities") String authorities,
+            @PathVariable String hospitalId){
         if (authorities.contains("RESCUE_ADMIN")) {
             hospitalService.deleteHospital(hospitalId);
             return new ResponseEntity<>(Response.builder()
@@ -96,7 +98,7 @@ public class HospitalController {
             @RequestParam(name = "pageSize",defaultValue = AppConstants.PAGE_SIZE,required = false) Integer pageSize,
             @RequestParam(name = "sortBy",defaultValue = AppConstants.SORT_BY,required = false)String sortBy,
             @RequestParam(name = "sortDir",defaultValue = AppConstants.SORT_DIR,required = false)String sortDir){
-        if (authorities.contains("RESCUE_USER")) {
+        if (authorities.contains("RESCUE_ADMIN")) {
             PageResponse<HospitalDto> pageResponse = hospitalService.getAllHospitals(pageNumber,pageSize,sortBy,sortDir);
             return new  ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -115,8 +117,9 @@ public class HospitalController {
         }
     }
     @GetMapping("/{hospitalId}")
-    public ResponseEntity<Response> getHospitalById(@RequestHeader("authorities") String authorities,
-                                                    @PathVariable String hospitalId){
+    public ResponseEntity<Response> getHospitalById(
+            @RequestHeader("authorities") String authorities,
+            @PathVariable String hospitalId){
         if (authorities.contains("RESCUE_USER")) {
             HospitalDto hospitalDto=hospitalService.getById(hospitalId);
             return new ResponseEntity<>(Response.builder()
@@ -134,6 +137,5 @@ public class HospitalController {
                     .statusCode(FORBIDDEN.value())
                     .build(), FORBIDDEN);
         }
-
     }
 }

@@ -18,11 +18,13 @@ public class MedicineController {
     @Autowired
     private MedicineService medicineService;
     @PostMapping("/prescriptionId/{prescriptionId}")
-    public ResponseEntity<Response> createMedicineOfPatientById(@RequestHeader("authorities") String authorities,
+    public ResponseEntity<Response> createMedicineOfPatientById(
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String userEmail,
             @RequestBody MedicineDto medicineDto,
             @PathVariable Integer prescriptionId){
-        if (authorities.contains("RESCUE_USER")) {
-            MedicineDto savedMedicine = medicineService.createMedicine(prescriptionId,medicineDto);
+        if (authorities.contains("HOSPITAL_ADMIN")) {
+            MedicineDto savedMedicine = medicineService.createMedicine(userEmail,prescriptionId,medicineDto);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("Medicine is successfully created")
@@ -42,7 +44,7 @@ public class MedicineController {
     @PutMapping("/{medicineId}")
     public ResponseEntity<Response> updateMedicine(@RequestHeader("authorities") String authorities,
                                                    @RequestBody MedicineDto medicineDto,@PathVariable Integer medicineId){
-        if (authorities.contains("RESCUE_USER")) {
+        if (authorities.contains("RESCUE_ADMIN")) {
             MedicineDto updateMedicine = medicineService.updateMedicine(medicineDto,medicineId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -61,9 +63,10 @@ public class MedicineController {
         }
     }
     @DeleteMapping("/{medicineId}")
-    public ResponseEntity<Response> deleteMedicine(@RequestHeader("authorities") String authorities,
-                                                   @PathVariable Integer medicineId){
-        if (authorities.contains("RESCUE_USER")) {
+    public ResponseEntity<Response> deleteMedicine(
+            @RequestHeader("authorities") String authorities,
+            @PathVariable Integer medicineId){
+        if (authorities.contains("RESCUE_ADMIN")) {
             medicineService.deleteMedicine(medicineId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -81,14 +84,15 @@ public class MedicineController {
         }
     }
     @GetMapping("/prescriptionId/{prescriptionId}")
-    public ResponseEntity<Response> getAllMedicineOfPrescription(@RequestHeader("authorities") String authorities,
+    public ResponseEntity<Response> getAllMedicineOfPrescription(
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String userEmail,
             @PathVariable Integer prescriptionId,
             @RequestParam(name = "pageNumber",defaultValue = AppConstants.PAGE_NUMBER,required = false) Integer pageNumber,
             @RequestParam(name = "pageSize",defaultValue = AppConstants.PAGE_SIZE,required = false) Integer pageSize,
             @RequestParam(name = "sortBy",defaultValue = AppConstants.SORT_BY,required = false)String sortBy,
             @RequestParam(name = "sortDir",defaultValue = AppConstants.SORT_DIR,required = false)String sortDir){
-        if (authorities.contains("RESCUE_USER")) {
-            PageResponse<MedicineDto> pageResponse = medicineService.getAllMedicines(prescriptionId,pageNumber,pageSize,sortBy,sortDir);
+            PageResponse<MedicineDto> pageResponse = medicineService.getAllMedicines(authorities,userEmail,prescriptionId,pageNumber,pageSize,sortBy,sortDir);
             return new  ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("All Medicine are successfully get")
@@ -96,14 +100,6 @@ public class MedicineController {
                     .statusCode(OK.value())
                     .data(pageResponse)
                     .build(),OK);
-        } else {
-            return new ResponseEntity<>(Response.builder()
-                    .timeStamp(now())
-                    .message("You are not authorized for this service")
-                    .status(FORBIDDEN)
-                    .statusCode(FORBIDDEN.value())
-                    .build(), FORBIDDEN);
-        }
     }
     @GetMapping("/{medicineId}")
     public ResponseEntity<Response> getMedicineById(@RequestHeader("authorities") String authorities,

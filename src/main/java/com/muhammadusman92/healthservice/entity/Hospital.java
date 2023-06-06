@@ -22,6 +22,8 @@ public class Hospital {
     private String reg_no;
     @Column(length = 150)
     private String name;
+    @Column(length = 500)
+    private String about;
     private boolean emergency_unit;
     @OneToMany(mappedBy = "hospital",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Set<Prescription> prescriptionSet=new HashSet<>();

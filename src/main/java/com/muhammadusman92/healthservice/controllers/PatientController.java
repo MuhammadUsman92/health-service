@@ -22,9 +22,11 @@ public class PatientController {
     private PatientService patientService;
     @PostMapping("/")
     public ResponseEntity<Response> createPatientById(
-                                                      @RequestBody PatientDto patientDto){
-//        if (authorities.contains("RESCUE_USER")) {
-            PatientDto savedPatient = patientService.createPatient(patientDto);
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String userEmail,
+            @RequestBody PatientDto patientDto){
+        if (authorities.contains("HOSPITAL_ADMIN")) {
+            PatientDto savedPatient = patientService.createPatient(userEmail,patientDto);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("Patient is successfully created")
@@ -32,19 +34,19 @@ public class PatientController {
                     .statusCode(CREATED.value())
                     .data(savedPatient)
                     .build(), CREATED);
-//        } else {
-//            return new ResponseEntity<>(Response.builder()
-//                    .timeStamp(now())
-//                    .message("You are not authorized for this service")
-//                    .status(FORBIDDEN)
-//                    .statusCode(FORBIDDEN.value())
-//                    .build(), FORBIDDEN);
-//        }
+        } else {
+            return new ResponseEntity<>(Response.builder()
+                    .timeStamp(now())
+                    .message("You are not authorized for this service")
+                    .status(FORBIDDEN)
+                    .statusCode(FORBIDDEN.value())
+                    .build(), FORBIDDEN);
+        }
     }
     @PutMapping("/{patientId}")
     public ResponseEntity<Response> updatePatient(@RequestHeader("authorities") String authorities,
                                                   @RequestBody PatientDto patientDto,@PathVariable String patientId){
-        if (authorities.contains("RESCUE_USER")) {
+        if (authorities.contains("HOSPITAL_ADMIN")) {
             PatientDto updatePatient = patientService.updatePatient(patientDto,patientId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -108,9 +110,9 @@ public class PatientController {
     }
     @GetMapping("/{patientId}")
     public ResponseEntity<Response> getPatientById(@RequestHeader("authorities") String authorities,
+                                                   @RequestHeader("userEmail") String userEmail,
                                                    @PathVariable String patientId){
-        if (authorities.contains("RESCUE_ADMIN")) {
-            PatientDto patientDto=patientService.getById(patientId);
+            PatientDto patientDto=patientService.getById(authorities,userEmail,patientId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("Patient with id "+patientId+" are successfully get")
@@ -118,13 +120,5 @@ public class PatientController {
                     .statusCode(OK.value())
                     .data(patientDto)
                     .build(),OK);
-        } else {
-            return new ResponseEntity<>(Response.builder()
-                    .timeStamp(now())
-                    .message("You are not authorized for this service")
-                    .status(FORBIDDEN)
-                    .statusCode(FORBIDDEN.value())
-                    .build(), FORBIDDEN);
-        }
     }
 }

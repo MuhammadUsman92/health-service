@@ -31,11 +31,12 @@ public class ReportController {
     private FileService fileService;
 
     @PostMapping("/prescriptionId/{prescriptionId}/laboratoryId/{laboratoryId}")
-    public ResponseEntity<Response> createReport(@RequestHeader("authorities") String authorities,
+    public ResponseEntity<Response> createReport(
+            @RequestHeader("authorities") String authorities,
             @RequestBody ReportDto reportDto,
             @PathVariable Integer prescriptionId,
             @PathVariable String laboratoryId){
-        if (authorities.contains("RESCUE_USER")) {
+        if (authorities.contains("HOSPITAL_USER")) {
             ReportDto savedReport = reportService.createReport(prescriptionId,laboratoryId,reportDto);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -58,7 +59,7 @@ public class ReportController {
     public ResponseEntity<Response> updateReport(@RequestHeader("authorities") String authorities,
                                                  @RequestBody ReportDto reportDto,
                                                  @PathVariable Integer reportId){
-        if (authorities.contains("RESCUE_USER")) {
+        if (authorities.contains("RESCUE_ADMIN")) {
             ReportDto updateReport = reportService.updateReport(reportDto,reportId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -79,7 +80,7 @@ public class ReportController {
     @DeleteMapping("/{reportId}")
     public ResponseEntity<Response> deleteReport(@RequestHeader("authorities") String authorities,
                                                  @PathVariable Integer reportId){
-        if (authorities.contains("RESCUE_USER")) {
+        if (authorities.contains("RESCUE_ADMIN")) {
             reportService.deleteReport(reportId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -98,7 +99,8 @@ public class ReportController {
 
     }
     @GetMapping("/prescriptionId/{prescriptionId}")
-    public ResponseEntity<Response> getAllReportOfDisease(@RequestHeader("authorities") String authorities,
+    public ResponseEntity<Response> getAllReportOfDisease(
+            @RequestHeader("authorities") String authorities,
             @PathVariable Integer prescriptionId,
             @RequestParam(name = "pageNumber",defaultValue = AppConstants.PAGE_NUMBER,required = false) Integer pageNumber,
             @RequestParam(name = "pageSize",defaultValue = AppConstants.PAGE_SIZE,required = false) Integer pageSize,

@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,15 @@ public class GlobalExceptionHandler {
                 .statusCode(NOT_FOUND.value())
                 .message(ex.getMessage())
                 .build(), NOT_FOUND);
+    }
+    @ExceptionHandler(UnAuthorizedException.class)
+    public ResponseEntity<Response> unauthorizedExceptionHandler(UnAuthorizedException ex){
+        return new ResponseEntity<>(Response.builder()
+                .timeStamp(now())
+                .message(ex.getMessage())
+                .status(FORBIDDEN)
+                .statusCode(FORBIDDEN.value())
+                .build(), FORBIDDEN);
     }
     @ExceptionHandler(AlreadyExistExeption.class)
     public ResponseEntity<Response> alreadyExistHandler(AlreadyExistExeption ex){
@@ -48,4 +58,5 @@ public class GlobalExceptionHandler {
                 .data(map)
                 .build(),BAD_REQUEST);
     }
+
 }

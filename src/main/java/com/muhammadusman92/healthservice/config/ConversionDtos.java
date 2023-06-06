@@ -22,6 +22,7 @@ public class ConversionDtos {
     public Doctor doctorDtoToDoctor(DoctorDto doctorDto){
         Doctor doctor=new Doctor();
         doctor.setPmdc(doctorDto.getPmdc());
+        doctor.setAbout(doctorDto.getAbout());
         doctor.setGender(Gender.valueOf(doctorDto.getGender()));
         doctor.setName(doctorDto.getName());
         doctor.setQualification(doctorDto.getQualification());
@@ -30,6 +31,7 @@ public class ConversionDtos {
     }
     public DoctorDto doctorToDoctorDto(Doctor doctor){
         DoctorDto doctorDto=new DoctorDto();
+        doctorDto.setAbout(doctorDto.getAbout());
         doctorDto.setPmdc(doctor.getPmdc());
         doctorDto.setGender(String.valueOf(doctor.getGender()));
         doctorDto.setName(doctor.getName());
@@ -42,11 +44,13 @@ public class ConversionDtos {
         hospitalDto.setLocation(this.locationToLocationDto(hospital.getLocation()));
         hospitalDto.setName(hospital.getName());
         hospitalDto.setEmergency_unit(hospital.isEmergency_unit());
+        hospitalDto.setAbout(hospitalDto.getAbout());
         hospitalDto.setReg_no(hospital.getReg_no());
         return hospitalDto;
     }
     public Hospital hospitalDtoToHospital(HospitalDto hospitalDto){
         Hospital hospital=new Hospital();
+        hospital.setAbout(hospitalDto.getAbout());
         hospital.setLocation(this.locationDtoToLocation(hospitalDto.getLocation()));
         hospital.setName(hospitalDto.getName());
         hospital.setEmergency_unit(hospitalDto.isEmergency_unit());
@@ -109,6 +113,8 @@ public class ConversionDtos {
     public Patient patientDtoToPatient(PatientDto patientDto){
         Patient patient=new Patient();
         patient.setCNIC(patientDto.getCNIC());
+        patient.setEmail(patientDto.getEmail());
+        patient.setBloodGroup(patientDto.getBloodGroup());
         patient.setAge(patientDto.getAge());
         patient.setGender(Gender.valueOf(patientDto.getGender()));
         patient.setHeight(patientDto.getHeight());
@@ -120,6 +126,8 @@ public class ConversionDtos {
     public PatientDto patientToPatientDto(Patient patient){
         PatientDto patientDto=new PatientDto();
         patientDto.setCNIC(patient.getCNIC());
+        patientDto.setEmail(patient.getEmail());
+        patientDto.setBloodGroup(patient.getBloodGroup());
         patientDto.setAge(patient.getAge());
         patientDto.setGender(String.valueOf(patient.getGender()));
         patientDto.setHeight(patient.getHeight());
@@ -133,6 +141,8 @@ public class ConversionDtos {
         prescriptionDto.setId(prescription.getId());
         prescriptionDto.setComments(prescription.getComments());
         prescriptionDto.setDate(prescription.getDate());
+        prescriptionDto.setMedicineSet(prescription.getMedicineSet().stream().map(this::medicineToMedicineDto).collect(Collectors.toSet()));
+        prescriptionDto.setReportSet(prescription.getReportSet().stream().map(this::reportToReportDto).collect(Collectors.toSet()));
         prescriptionDto.setRecover(prescription.isRecover());
         return prescriptionDto;
     }
@@ -142,6 +152,7 @@ public class ConversionDtos {
         prescription.setDate(prescriptionDto.getDate());
         prescription.setComments(prescriptionDto.getComments());
         prescription.setMedicineSet(prescriptionDto.getMedicineSet().stream().map(this::medicineDtoToMedicine).collect(Collectors.toSet()));
+        prescription.setReportSet(prescriptionDto.getReportSet().stream().map(this::reportDtoToReport).collect(Collectors.toSet()));
         return prescription;
     }
     public Report reportDtoToReport(ReportDto reportDto){

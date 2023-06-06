@@ -17,6 +17,7 @@ public class DoctorDto {
     private String specialization;
     private String qualification;
     private String gender;
+    private String about;
     private Set<PatientDto> patientDtoSet = new HashSet<>();
     private Set<PrescriptionDto> prescriptionDtoSet =new HashSet<>();
     private Set<HospitalDto> hospitalDtoSet = new HashSet<>();

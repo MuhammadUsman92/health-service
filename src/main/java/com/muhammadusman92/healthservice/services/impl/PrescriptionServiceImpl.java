@@ -3,6 +3,7 @@ package com.muhammadusman92.healthservice.services.impl;
 import com.muhammadusman92.healthservice.config.ConversionDtos;
 import com.muhammadusman92.healthservice.entity.*;
 import com.muhammadusman92.healthservice.exception.ResourceNotFoundException;
+import com.muhammadusman92.healthservice.exception.UnAuthorizedException;
 import com.muhammadusman92.healthservice.payload.MedicineDto;
 import com.muhammadusman92.healthservice.payload.PageResponse;
 import com.muhammadusman92.healthservice.payload.PrescriptionDto;
@@ -93,19 +94,24 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public PrescriptionDto getById(Integer prescriptionId) {
+    public PrescriptionDto getById(String authorities,String userEmail,Integer prescriptionId) {
         Prescription prescriptionFind = prescriptionRepo.findById(prescriptionId).orElseThrow(
                 ()->new ResourceNotFoundException("Prescription","PrescriptionId",prescriptionId));
         PrescriptionDto prescriptionDto = conversionDtos.prescriptionToPrescriptionDto(prescriptionFind);
+        prescriptionDto.setHospital(conversionDtos.hospitalToHospitalDto(prescriptionFind.getHospital()));
+        prescriptionDto.setDoctor(conversionDtos.doctorToDoctorDto(prescriptionFind.getDoctor()));
         return prescriptionData(prescriptionFind,prescriptionDto);
     }
 
     @Override
-    public PageResponse<PrescriptionDto> getAllPrescriptions(Integer diseaseId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+    public PageResponse<PrescriptionDto> getAllPrescriptions(String userEmail,String authorities,Integer diseaseId, Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
         Sort sort= (sortDir.equalsIgnoreCase("asc"))?Sort.by(sortBy).ascending(): Sort.by(sortBy).descending();
         Pageable pageable= PageRequest.of(pageNumber,pageSize, sort);
         Disease disease = diseaseRepo.findById(diseaseId).orElseThrow(
                 ()->new ResourceNotFoundException("Disease","DiseaseId",diseaseId));
+        if (!authorities.contains("RESCUE_USER") && !disease.getPatient().getEmail().equalsIgnoreCase(userEmail)) {
+           throw new UnAuthorizedException();
+        }
         Page<Prescription> prescriptionPage=prescriptionRepo.findByDisease(disease,pageable);
         PageResponse<PrescriptionDto> prescriptionPageResponse=new PageResponse<>();
         List<PrescriptionDto> prescriptionDtoList = prescriptionPage.getContent().stream().map(

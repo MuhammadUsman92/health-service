@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpStatus.*;
 
@@ -18,10 +20,11 @@ public class DoctorController {
     private DoctorService doctorService;
     @PostMapping("/")
     public ResponseEntity<Response> createDoctor(
-//            @RequestHeader("authorities") String authorities,
-                                                 @RequestBody DoctorDto doctorDto){
-//        if (authorities.contains("RESCUE_ADMIN")) {
-            DoctorDto doctorDtoCreated = doctorService.createDoctor(doctorDto);
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String userEmail,
+            @RequestBody DoctorDto doctorDto){
+        if (authorities.contains("HOSPITAL_ADMIN")) {
+            DoctorDto doctorDtoCreated = doctorService.createDoctor(userEmail,doctorDto);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("Doctor is successfully created")
@@ -29,14 +32,14 @@ public class DoctorController {
                     .statusCode(CREATED.value())
                     .data(doctorDtoCreated)
                     .build(), CREATED);
-//        } else {
-//            return new ResponseEntity<>(Response.builder()
-//                    .timeStamp(now())
-//                    .message("You are not authorized for this service")
-//                    .status(FORBIDDEN)
-//                    .statusCode(FORBIDDEN.value())
-//                    .build(), FORBIDDEN);
-//        }
+        } else {
+            return new ResponseEntity<>(Response.builder()
+                    .timeStamp(now())
+                    .message("You are not authorized for this service")
+                    .status(FORBIDDEN)
+                    .statusCode(FORBIDDEN.value())
+                    .build(), FORBIDDEN);
+        }
     }
     @PutMapping("/{doctorId}")
     public ResponseEntity<Response> updateDoctor(@RequestHeader("authorities") String authorities,
@@ -102,6 +105,29 @@ public class DoctorController {
                     .statusCode(FORBIDDEN.value())
                     .build(), FORBIDDEN);
         }
+    }
+    @GetMapping("/hospital")
+    public ResponseEntity<Response> getDoctorByHospital(
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String userEmail){
+        if (authorities.contains("HOSPITAL_ADMIN")) {
+            List<DoctorDto> doctorDto=doctorService.getAllDoctors(userEmail);
+            return new ResponseEntity<>(Response.builder()
+                    .timeStamp(now())
+                    .message("Doctor with id "+userEmail+" are successfully get")
+                    .status(OK)
+                    .statusCode(OK.value())
+                    .data(doctorDto)
+                    .build(),OK);
+        } else {
+            return new ResponseEntity<>(Response.builder()
+                    .timeStamp(now())
+                    .message("You are not authorized for this service")
+                    .status(FORBIDDEN)
+                    .statusCode(FORBIDDEN.value())
+                    .build(), FORBIDDEN);
+        }
+
     }
     @GetMapping("/{doctorId}")
     public ResponseEntity<Response> getDoctorById(@RequestHeader("authorities") String authorities,

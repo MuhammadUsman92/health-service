@@ -8,4 +8,9 @@ public class AlreadyExistExeption extends RuntimeException{
         this.fieldName = fieldName;
         this.fieldValue = fieldValue;
     }
+    public AlreadyExistExeption(String fieldName, String fieldValue,String message) {
+        super(String.format("%s : %s is already exist in database and %s",fieldName,fieldValue,message));
+        this.fieldName = fieldName;
+        this.fieldValue = fieldValue;
+    }
 }

@@ -29,6 +29,8 @@ public class Doctor {
     @Enumerated(EnumType.STRING)
     @Column(length = 15)
     private Gender gender;
+    @Column(length = 500)
+    private String about;
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "patient_have_doctor", joinColumns = { @JoinColumn(name = "doctor_id") }, inverseJoinColumns = { @JoinColumn(name = "patient_id") })
     private Set<Patient> patientSet = new HashSet<>();

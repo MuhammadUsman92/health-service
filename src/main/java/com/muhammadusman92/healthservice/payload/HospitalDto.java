@@ -14,6 +14,7 @@ import java.util.Set;
 public class HospitalDto {
     private String name;
     private String reg_no;
+    private String about;
     private boolean emergency_unit;
     private LocationDto location;
     private Set<PrescriptionDto> prescriptionSet =new HashSet<>();

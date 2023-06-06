@@ -20,12 +20,12 @@ public class PrescriptionController {
     private PrescriptionService prescriptionService;
     @PostMapping("/diseaseId/{diseaseId}/doctorId/{doctorId}")
     public ResponseEntity<Response> createPrescription(
-//            @RequestHeader("authorities") String authorities,
-                                                       @RequestHeader("userEmail") String email,
-                                                        @RequestBody PrescriptionDto prescriptionDto,
-                                                        @PathVariable Integer diseaseId,
-                                                        @PathVariable String doctorId){
-//        if (authorities.contains("RESCUE_USER")) {
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String email,
+            @RequestBody PrescriptionDto prescriptionDto,
+            @PathVariable Integer diseaseId,
+            @PathVariable String doctorId){
+        if (authorities.contains("HOSPITAL_ADMIN")) {
             PrescriptionDto savedPrescription = prescriptionService.createPrescription(prescriptionDto,diseaseId,doctorId,email);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -34,21 +34,20 @@ public class PrescriptionController {
                     .statusCode(CREATED.value())
                     .data(savedPrescription)
                     .build(), CREATED);
-//        } else {
-//            return new ResponseEntity<>(Response.builder()
-//                    .timeStamp(now())
-//                    .message("You are not authorized for this service")
-//                    .status(FORBIDDEN)
-//                    .statusCode(FORBIDDEN.value())
-//                    .build(), FORBIDDEN);
-//        }
-
+        } else {
+            return new ResponseEntity<>(Response.builder()
+                    .timeStamp(now())
+                    .message("You are not authorized for this service")
+                    .status(FORBIDDEN)
+                    .statusCode(FORBIDDEN.value())
+                    .build(), FORBIDDEN);
+        }
     }
     @PutMapping("/{prescriptionId}")
     public ResponseEntity<Response> updatePrescription(@RequestBody PrescriptionDto prescriptionDto,
                                                        @RequestHeader("authorities") String authorities,
                                                        @PathVariable Integer prescriptionId){
-        if (authorities.contains("RESCUE_USER")) {
+        if (authorities.contains("RESCUE_ADMIN")) {
             PrescriptionDto updatePrescription = prescriptionService.updatePrescription(prescriptionDto,prescriptionId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -68,9 +67,10 @@ public class PrescriptionController {
 
     }
     @DeleteMapping("/{prescriptionId}")
-    public ResponseEntity<Response> deletePrescription(@RequestHeader("authorities") String authorities,
-                                                       @PathVariable Integer prescriptionId){
-        if (authorities.contains("RESCUE_USER")) {
+    public ResponseEntity<Response> deletePrescription(
+            @RequestHeader("authorities") String authorities,
+            @PathVariable Integer prescriptionId){
+        if (authorities.contains("RESCUE_ADMIN")) {
             prescriptionService.deletePrescription(prescriptionId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -89,14 +89,15 @@ public class PrescriptionController {
 
     }
     @GetMapping("/diseaseId/{diseaseId}")
-    public ResponseEntity<Response> getAllPrescriptionOfDisease(@RequestHeader("authorities") String authorities,
+    public ResponseEntity<Response> getAllPrescriptionOfDisease(
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String userEmail,
             @PathVariable Integer diseaseId,
             @RequestParam(name = "pageNumber",defaultValue = AppConstants.PAGE_NUMBER,required = false) Integer pageNumber,
             @RequestParam(name = "pageSize",defaultValue = AppConstants.PAGE_SIZE,required = false) Integer pageSize,
             @RequestParam(name = "sortBy",defaultValue = AppConstants.SORT_BY,required = false)String sortBy,
             @RequestParam(name = "sortDir",defaultValue = AppConstants.SORT_DIR,required = false)String sortDir){
-        if (authorities.contains("RESCUE_USER")) {
-            PageResponse<PrescriptionDto> pageResponse = prescriptionService.getAllPrescriptions(diseaseId,pageNumber,pageSize,sortBy,sortDir);
+            PageResponse<PrescriptionDto> pageResponse = prescriptionService.getAllPrescriptions(userEmail,authorities,diseaseId,pageNumber,pageSize,sortBy,sortDir);
             return new  ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("All Prescription are successfully get")
@@ -104,20 +105,12 @@ public class PrescriptionController {
                     .statusCode(OK.value())
                     .data(pageResponse)
                     .build(),OK);
-        } else {
-            return new ResponseEntity<>(Response.builder()
-                    .timeStamp(now())
-                    .message("You are not authorized for this service")
-                    .status(FORBIDDEN)
-                    .statusCode(FORBIDDEN.value())
-                    .build(), FORBIDDEN);
-        }
     }
     @GetMapping("/{prescriptionId}")
     public ResponseEntity<Response> getPrescriptionById(@RequestHeader("authorities") String authorities,
+                                                        @RequestHeader("userEmail") String userEmail,
                                                         @PathVariable Integer prescriptionId){
-        if (authorities.contains("RESCUE_USER")) {
-            PrescriptionDto prescriptionDto=prescriptionService.getById(prescriptionId);
+            PrescriptionDto prescriptionDto=prescriptionService.getById(authorities,userEmail,prescriptionId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("Prescription with id "+prescriptionId+" are successfully get")
@@ -125,13 +118,5 @@ public class PrescriptionController {
                     .statusCode(OK.value())
                     .data(prescriptionDto)
                     .build(),OK);
-        } else {
-            return new ResponseEntity<>(Response.builder()
-                    .timeStamp(now())
-                    .message("You are not authorized for this service")
-                    .status(FORBIDDEN)
-                    .statusCode(FORBIDDEN.value())
-                    .build(), FORBIDDEN);
-        }
     }
 }

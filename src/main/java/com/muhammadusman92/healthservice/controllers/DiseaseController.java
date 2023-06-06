@@ -23,15 +23,11 @@ public class DiseaseController {
     private DiseaseService diseaseService;
     @PostMapping("/patientId/{patientId}")
     public ResponseEntity<Response> createDiseaseOfPatientById(
-//            @RequestHeader("authorities") String authorities,
-//                                                               @RequestHeader("userEmail") String email,
-                                                               @RequestBody DiseaseDto diseaseDto,
-                                                               @PathVariable String patientId){
-//        if(
-//                (diseaseDto.getPatientDto().getEmail().equalsIgnoreCase(email) && diseaseDto.getPatientDto().getCNIC().equalsIgnoreCase(patientId))
-//                        || authorities.contains("RESCUE_USER")
-//        ){
-            DiseaseDto savedDisease = diseaseService.createDisease(patientId,diseaseDto);
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String userEmail,
+            @RequestBody DiseaseDto diseaseDto,
+            @PathVariable String patientId){
+            DiseaseDto savedDisease = diseaseService.createDisease(userEmail,patientId,diseaseDto);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("Disease is successfully created")
@@ -39,20 +35,11 @@ public class DiseaseController {
                     .statusCode(CREATED.value())
                     .data(savedDisease)
                     .build(), CREATED);
-//        }
-//        else  {
-//            return new ResponseEntity<>(Response.builder()
-//                    .timeStamp(now())
-//                    .message("You are not authorized for this service")
-//                    .status(FORBIDDEN)
-//                    .statusCode(FORBIDDEN.value())
-//                    .build(), FORBIDDEN);
-//        }
     }
     @PutMapping("/{diseaseId}")
     public ResponseEntity<Response> updateDisease(@RequestHeader("authorities") String authorities,
                                                   @RequestBody DiseaseDto diseaseDto,@PathVariable Integer diseaseId){
-        if (authorities.contains("RESCUE_ADMIN")) {
+        if (authorities.contains("HOSPITAL_ADMIN")) {
             DiseaseDto updateDisease = diseaseService.updateDisease(diseaseDto,diseaseId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
@@ -69,7 +56,6 @@ public class DiseaseController {
                     .statusCode(FORBIDDEN.value())
                     .build(), FORBIDDEN);
         }
-
     }
     @DeleteMapping("/{diseaseId}")
     public ResponseEntity<Response> deleteDisease(@RequestHeader("authorities") String authorities,
@@ -90,20 +76,17 @@ public class DiseaseController {
                     .statusCode(FORBIDDEN.value())
                     .build(), FORBIDDEN);
         }
-
-
     }
     @GetMapping("/patientId/{patientId}")
     public ResponseEntity<Response> getAllDiseaseOfPatient(
-//            @RequestHeader("authorities") String authorities,
-//                                                           @RequestHeader("userEmail") String email,
+            @RequestHeader("authorities") String authorities,
+            @RequestHeader("userEmail") String userEmail,
             @PathVariable String patientId,
             @RequestParam(name = "pageNumber",defaultValue = AppConstants.PAGE_NUMBER,required = false) Integer pageNumber,
             @RequestParam(name = "pageSize",defaultValue = AppConstants.PAGE_SIZE,required = false) Integer pageSize,
             @RequestParam(name = "sortBy",defaultValue = AppConstants.SORT_BY,required = false)String sortBy,
             @RequestParam(name = "sortDir",defaultValue = AppConstants.SORT_DIR,required = false)String sortDir){
-        PageResponse<DiseaseDto> pageResponse = diseaseService.getAllDiseases(patientId,pageNumber,pageSize,sortBy,sortDir);
-//        if(pageResponse.getContent().get(0).getPatientDto().getEmail().equalsIgnoreCase(email) || authorities.contains("RESCUE_USER")){
+            PageResponse<DiseaseDto> pageResponse = diseaseService.getAllDiseases(authorities,userEmail,patientId,pageNumber,pageSize,sortBy,sortDir);
             return new  ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("All Disease are successfully get")
@@ -111,22 +94,12 @@ public class DiseaseController {
                     .statusCode(OK.value())
                     .data(pageResponse)
                     .build(),OK);
-//        }
-//        else {
-//            return new ResponseEntity<>(Response.builder()
-//                    .timeStamp(now())
-//                    .message("You are not authorized for this service")
-//                    .status(FORBIDDEN)
-//                    .statusCode(FORBIDDEN.value())
-//                    .build(), FORBIDDEN);
-//        }
     }
     @GetMapping("/{diseaseId}")
     public ResponseEntity<Response> getDiseaseById(@RequestHeader("authorities") String authorities,
                                                    @RequestHeader("userEmail") String email,
                                                    @PathVariable Integer diseaseId){
-        DiseaseDto diseaseDto=diseaseService.getById(diseaseId);
-        if(diseaseDto.getPatientDto().getEmail().equalsIgnoreCase(email) || authorities.contains("RESCUE_USER")){
+        DiseaseDto diseaseDto=diseaseService.getById(authorities,email,diseaseId);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
                     .message("Disease with id "+diseaseId+" are successfully get")
@@ -134,14 +107,6 @@ public class DiseaseController {
                     .statusCode(OK.value())
                     .data(diseaseDto)
                     .build(),OK);
-        }else {
-            return new ResponseEntity<>(Response.builder()
-                    .timeStamp(now())
-                    .message("You are not authorized for this service")
-                    .status(FORBIDDEN)
-                    .statusCode(FORBIDDEN.value())
-                    .build(), FORBIDDEN);
-        }
     }
 
 }

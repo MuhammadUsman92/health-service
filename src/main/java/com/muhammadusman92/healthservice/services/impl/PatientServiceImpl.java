@@ -1,18 +1,18 @@
 package com.muhammadusman92.healthservice.services.impl;
 
 import com.muhammadusman92.healthservice.config.ConversionDtos;
-import com.muhammadusman92.healthservice.entity.Gender;
+import com.muhammadusman92.healthservice.entity.Hospital;
+import com.muhammadusman92.healthservice.entity.HospitalUser;
 import com.muhammadusman92.healthservice.entity.Patient;
 import com.muhammadusman92.healthservice.exception.AlreadyExistExeption;
 import com.muhammadusman92.healthservice.exception.ResourceNotFoundException;
+import com.muhammadusman92.healthservice.exception.UnAuthorizedException;
 import com.muhammadusman92.healthservice.payload.*;
+import com.muhammadusman92.healthservice.repo.HospitalRepo;
+import com.muhammadusman92.healthservice.repo.HospitalUserRepo;
 import com.muhammadusman92.healthservice.repo.LocationRepo;
 import com.muhammadusman92.healthservice.repo.PatientRepo;
 import com.muhammadusman92.healthservice.services.PatientService;
-import org.hibernate.Filter;
-import org.hibernate.Session;
-import org.hibernate.annotations.Where;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,19 +36,29 @@ public class PatientServiceImpl implements PatientService {
     private EntityManager entityManager;
     @Autowired
     private LocationRepo locationRepo;
+    @Autowired
+    private HospitalUserRepo hospitalUserRepo;
 
+    @Autowired
+    private HospitalRepo hospitalRepo;
+    @Transactional
     @Override
-    public PatientDto createPatient(PatientDto patientDto) {
+    public PatientDto createPatient(String userEmail,PatientDto patientDto) {
         Patient patient=conversionDtos.patientDtoToPatient(patientDto);
         if(patientRepo.existsCNIC(patient.getCNIC())>0){
             throw new AlreadyExistExeption("CNIC", patient.getCNIC());
         }
+        HospitalUser hospitalUser = hospitalUserRepo.findByEmail(userEmail).orElseThrow(UnAuthorizedException::new);
+        Hospital hospital = hospitalUser.getHospital();
+        patient.getHospitalSet().add(hospital);
         patient.setLocation(locationRepo.save(patient.getLocation()));
         Patient save = patientRepo.save(patient);
+        hospital.getPatients().add(save);
+        hospitalRepo.save(hospital);
         PatientDto patientDto1 = conversionDtos.patientToPatientDto(save);
         return this.patientData(save,patientDto1);
     }
-
+    @Transactional
     @Override
     public PatientDto updatePatient(PatientDto patientDto, String patientId) {
         Patient patient=conversionDtos.patientDtoToPatient(patientDto);
@@ -58,11 +69,14 @@ public class PatientServiceImpl implements PatientService {
         PatientDto patientDto1 = conversionDtos.patientToPatientDto(save);
         return this.patientData(save,patientDto1);
     }
-
+    @Transactional
     @Override
-    public PatientDto getById(String patientId) {
+    public PatientDto getById(String authorities,String userEmail,String patientId) {
         Patient patient = patientRepo.findById(patientId).orElseThrow(
                 ()->new ResourceNotFoundException("Patient","PatientId",patientId));
+        if (!authorities.contains("RESCUE_USER") && !patient.getEmail().equalsIgnoreCase(userEmail)) {
+            throw new UnAuthorizedException();
+        }
         PatientDto patientDto = conversionDtos.patientToPatientDto(patient);
         patientDto.setLocation(conversionDtos.locationToLocationDto(patient.getLocation()));
         patientDto.setDoctorSet(patient.getDoctorSet().stream().map(doctor -> conversionDtos.doctorToDoctorDto(doctor)).collect(Collectors.toSet()));
@@ -87,7 +101,7 @@ public class PatientServiceImpl implements PatientService {
         patientPageResponse.setTotalElements(patientPage.getTotalElements());
         return patientPageResponse;
     }
-
+    @Transactional
     @Override
     public void deletePatient(String patientId) {
         Patient patient = patientRepo.findById(patientId).orElseThrow(
