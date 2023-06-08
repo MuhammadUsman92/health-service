@@ -36,7 +36,7 @@ public class ReportController {
             @RequestBody ReportDto reportDto,
             @PathVariable Integer prescriptionId,
             @PathVariable String laboratoryId){
-        if (authorities.contains("HOSPITAL_USER")) {
+        if (authorities.contains("HOSPITAL_ADMIN")) {
             ReportDto savedReport = reportService.createReport(prescriptionId,laboratoryId,reportDto);
             return new ResponseEntity<>(Response.builder()
                     .timeStamp(now())
