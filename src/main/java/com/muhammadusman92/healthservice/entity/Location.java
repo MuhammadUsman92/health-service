@@ -31,10 +31,8 @@ public class Location {
     private boolean deleted = Boolean.FALSE;
     @OneToOne(mappedBy = "location")
     private Patient patient;
-
     @OneToOne(mappedBy = "location")
     private Hospital hospital;
-
     @OneToOne(mappedBy = "location")
     private Laboratory laboratory;
 }

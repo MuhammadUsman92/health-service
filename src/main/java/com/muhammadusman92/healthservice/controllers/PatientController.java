@@ -121,4 +121,17 @@ public class PatientController {
                     .data(patientDto)
                     .build(),OK);
     }
+
+    @GetMapping("/own-record")
+    public ResponseEntity<Response> getPatientByEmail(@RequestHeader("authorities") String authorities,
+                                                   @RequestHeader("userEmail") String userEmail){
+        PatientDto patientDto=patientService.getByEmail(authorities,userEmail);
+        return new ResponseEntity<>(Response.builder()
+                .timeStamp(now())
+                .message("Patient with email "+userEmail+" are successfully get")
+                .status(OK)
+                .statusCode(OK.value())
+                .data(patientDto)
+                .build(),OK);
+    }
 }

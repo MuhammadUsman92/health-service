@@ -86,6 +86,18 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    public PatientDto getByEmail(String authorities, String userEmail) {
+        Patient patient = patientRepo.findByEmail(userEmail).orElseThrow(
+                ()->new ResourceNotFoundException("Patient","patient email",userEmail));
+        PatientDto patientDto = conversionDtos.patientToPatientDto(patient);
+        patientDto.setLocation(conversionDtos.locationToLocationDto(patient.getLocation()));
+        patientDto.setDoctorSet(patient.getDoctorSet().stream().map(doctor -> conversionDtos.doctorToDoctorDto(doctor)).collect(Collectors.toSet()));
+        patientDto.setHospitalSet(patient.getHospitalSet().stream().map(hospital->conversionDtos.hospitalToHospitalDto(hospital)).collect(Collectors.toSet()));
+        patientDto.setDiseaseSet(patient.getDiseaseSet().stream().map(disease -> conversionDtos.diseaseToDiseaseDto(disease)).collect(Collectors.toSet()));
+        return this.patientData(patient,patientDto);
+    }
+
+    @Override
     public PageResponse<PatientDto> getAllPatients(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
         Sort sort= (sortDir.equalsIgnoreCase("asc"))?Sort.by(sortBy).ascending(): Sort.by(sortBy).descending();
         Pageable pageable= PageRequest.of(pageNumber,pageSize, sort);
