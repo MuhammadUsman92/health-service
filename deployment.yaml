@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-service-app
+  labels:
+    app: health-service-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: health-service-app
+  template:
+    metadata:
+      labels:
+        app: health-service-app
+    spec:
+      containers:
+        - name: health-service-app
+          image: gcr.io/PROJECT_ID/IMAGE:TAG
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084
