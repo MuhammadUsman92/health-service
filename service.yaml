@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: health-service-svc
 spec:
-  type: LoadBalancer
   ports:
     - port: 8084
       targetPort: 8084
